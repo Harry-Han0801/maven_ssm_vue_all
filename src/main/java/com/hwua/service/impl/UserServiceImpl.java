@@ -19,4 +19,9 @@ public class UserServiceImpl implements UserService {
     public List<User> selectUser() {
         return userMapper.selectAll();
     }
+
+    @Override
+    public List<User> selectAllUser() {
+        return null;
+    }
 }
