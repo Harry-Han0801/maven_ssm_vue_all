@@ -24,4 +24,14 @@ public class UserServiceImpl implements UserService {
     public List<User> selectAllUser() {
         return null;
     }
+
+    @Override
+    public List<User> getAllUser() {
+        return null;
+    }
+
+    @Override
+    public List<User> getUser() {
+        return null;
+    }
 }
