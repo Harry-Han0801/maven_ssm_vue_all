@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://mybatis.org/schema/mybatis-spring 
+        http://mybatis.org/schema/mybatis-spring.xsd"> 
+        
+	<!-- 开启IOC 注解的包扫描 (Spring排除扫描SpringMVC的注解) -->
+	<context:component-scan base-package="com.hwua">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+	
+	<!-- 加载属性文件  -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	
+	<!-- 配置druid数据源  -->
+	<bean id="druid" class="com.alibaba.druid.pool.DruidDataSource">
+	     <property name="url" value="${jdbc_url}" />
+	     <property name="username" value="${jdbc_username}" />
+	     <property name="password" value="${jdbc_password}" />
+	     <property name="filters" value="stat" />
+	     <property name="maxActive" value="${jdbc_maxPoolSize}" />
+	     <property name="initialSize" value="${jdbc_initialPoolSize}" />
+	     <property name="maxWait" value="60000" />
+	     <property name="minIdle" value="1" />
+	     <property name="timeBetweenEvictionRunsMillis" value="60000" />
+	     <property name="minEvictableIdleTimeMillis" value="300000" />
+	     <property name="testWhileIdle" value="true" />
+	     <property name="testOnBorrow" value="false" />
+	     <property name="testOnReturn" value="false" />
+	     <property name="poolPreparedStatements" value="true" />
+	     <property name="maxOpenPreparedStatements" value="20" />
+	     <property name="asyncInit" value="true" />
+	</bean>
+	
+	<!-- Spring 整合 Mybatis : 将SqlSessionFactoryBean交给Spring -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="druid"/> <!-- 数据源 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"/> <!-- 读取mybatis配置 -->
+		<property name="typeAliasesPackage" value="com.hwua.entity"/> <!-- 配置实体类的别名扫描 -->
+		<property name="mapperLocations" value="classpath:sql/mapper/*.xml"/><!--配置映射文件读取路径  -->
+	</bean>
+	
+	<!-- 配置Mapper映射接口包扫描 (将Mapper接口代理对象交给Spring) 
+		  默认的规定 : 接口 与 映射文件需要同名 同包
+	-->
+	<mybatis:scan base-package="com.hwua.mapper"/>
+	
+	<!-- 将所有ORM框架事务的处理都交给Spring  -->
+	<!-- 配置平台事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="druid"/>
+	</bean>
+	<!-- 配置声明式事务通知 : 传播行为 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="query*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- 配置基于AOP的事务增强 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.hwua.service.impl.*.*(..))" id="servicePointcut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointcut"/>
+	</aop:config>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
