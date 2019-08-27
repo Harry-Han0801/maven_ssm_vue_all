@@ -10,4 +10,6 @@ public interface UserService {
     List<User> selectAllUser();
 
     List<User> getAllUser();
+
+    List<User> getUser();
 }
