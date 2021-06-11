@@ -27,7 +27,7 @@
     <jackson.version>2.9.8</jackson.version>
     <fastjson.version>1.2.54</fastjson.version>
     <fileupload.version>1.3.3</fileupload.version>
-    <commons.io>2.6</commons.io>
+    <commons.io>2.7</commons.io>
     <log4j.version>1.2.17</log4j.version>
   </properties>
 
